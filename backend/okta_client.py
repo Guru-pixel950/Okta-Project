@@ -114,3 +114,28 @@ def unsuspend_user(user_id):
         headers=HEADERS,
         timeout=10
     )
+
+
+def update_user(user_id, profile_data):
+    """Update a user profile in Okta."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/users/{user_id}"
+
+    return requests.post(
+        url,
+        headers=HEADERS,
+        json={"profile": profile_data},
+        timeout=10
+    )
+
+
+def delete_user(user_id):
+    """Delete a deprovisioned user in Okta."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/users/{user_id}"
+
+    return requests.delete(
+        url,
+        headers=HEADERS,
+        timeout=10
+    )
