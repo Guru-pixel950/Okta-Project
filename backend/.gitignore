@@ -1,0 +1,13 @@
+# Environment variables
+.env
+backend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated data
+data/audit.log
+data/users.csv
+backend/data/audit.log
+backend/data/users.csv
