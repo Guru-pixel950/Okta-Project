@@ -46,7 +46,7 @@ def get_users():
 def create_user(data):
     """Create a new user in Okta."""
 
-    url = f"{OKTA_DOMAIN}/api/v1/users?activate=false"
+    url = f"{OKTA_DOMAIN}/api/v1/users?activate=true"
 
     return requests.post(
         url,
@@ -54,6 +54,63 @@ def create_user(data):
         json=data,
         timeout=10
     )
+
+
+
+def update_user(user_id, profile_data):
+    """Update an existing user profile in Okta."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/users/{user_id}"
+
+    return requests.post(
+        url,
+        headers=HEADERS,
+        json={"profile": profile_data},
+        timeout=10
+    )
+
+
+def authenticate(username, password):
+    """Authenticate credentials directly against Okta Primary Authn API."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/authn"
+
+    payload = {
+        "username": username,
+        "password": password,
+        "options": {
+            "multiOptionalFactorEnroll": False,
+            "warnBeforePasswordExpired": False
+        }
+    }
+
+    # Public endpoint - standard headers without API token
+    auth_headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+
+    return requests.post(
+        url,
+        headers=auth_headers,
+        json=payload,
+        timeout=10
+    )
+
+
+def get_user_by_login(login_or_email):
+    """Find a user in Okta by login/email."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/users"
+
+    response = requests.get(
+        url,
+        headers=HEADERS,
+        params={"q": login_or_email, "limit": 5},
+        timeout=10
+    )
+
+    return response
 
 
 def activate_user(user_id):
@@ -114,3 +171,16 @@ def unsuspend_user(user_id):
         headers=HEADERS,
         timeout=10
     )
+
+
+def get_user_roles(user_id):
+    """Get assigned administrator roles for a user from Okta."""
+
+    url = f"{OKTA_DOMAIN}/api/v1/users/{user_id}/roles"
+
+    return requests.get(
+        url,
+        headers=HEADERS,
+        timeout=10
+    )
+

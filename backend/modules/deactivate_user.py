@@ -56,28 +56,9 @@ def deactivate_user(user_id):
 
         return user
 
-    # Only ACTIVE users can be deactivated
-    if current_status != "ACTIVE":
-
-        reason = f"Invalid current state: {current_status}"
-
-        print(
-            f"User cannot be deactivated from "
-            f"the current state: {current_status}"
-        )
-
-        log_operation(
-            "DEACTIVATE",
-            user_id,
-            user_name,
-            "SKIPPED",
-            reason
-        )
-
-        return None
-
-    # Deactivate user
+    # Deactivate user in Okta
     response = api_deactivate_user(user_id)
+
 
     if response.ok:
 

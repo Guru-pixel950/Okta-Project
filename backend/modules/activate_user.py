@@ -52,28 +52,19 @@ def activate_user(user_id):
 
         return user
 
-    # Only STAGED users can be activated
-    if current_status != "STAGED":
+    # If SUSPENDED, unsuspend instead
+    if current_status == "SUSPENDED":
+        from okta_client import unsuspend_user as api_unsuspend_user
+        response = api_unsuspend_user(user_id)
+        if response.ok:
+            log_operation("ACTIVATE", user_id, user_name, "SUCCESS", "Unsuspended to Active")
+            updated_user = get_user(user_id).json() if get_user(user_id).ok else user
+            updated_user["_operation_result"] = "SUCCESS"
+            return updated_user
 
-        reason = f"Invalid current state: {current_status}"
-
-        print(
-            f"User cannot be activated from "
-            f"the current state: {current_status}"
-        )
-
-        log_operation(
-            "ACTIVATE",
-            user_id,
-            user_name,
-            "SKIPPED",
-            reason
-        )
-
-        return None
-
-    # Activate user
+    # Activate user from STAGED, PROVISIONED, or DEPROVISIONED
     response = api_activate_user(user_id)
+
 
     if response.ok:
 

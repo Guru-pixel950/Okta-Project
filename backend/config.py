@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-OKTA_DOMAIN = os.getenv("OKTA_DOMAIN")
-OKTA_TOKEN = os.getenv("OKTA_TOKEN")
+OKTA_DOMAIN = (os.getenv("OKTA_DOMAIN") or "").strip()
+OKTA_TOKEN = (os.getenv("OKTA_TOKEN") or "").strip()
 
 
 if not OKTA_DOMAIN or not OKTA_TOKEN:
