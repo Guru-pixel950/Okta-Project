@@ -602,21 +602,20 @@ export default function DashboardLayout({
                           <th>Email</th>
                           <th>Status</th>
                           <th>Created Date</th>
-                          <th style={{ textAlign: 'center' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {isLoadingUsers ? (
                           Array.from({ length: 4 }).map((_, i) => (
                             <tr key={i}>
-                              <td colSpan={7}>
+                              <td colSpan={6}>
                                 <div className="row-skeleton" />
                               </td>
                             </tr>
                           ))
                         ) : paginatedUsers.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="empty-table-cell" style={{ textAlign: 'center', padding: '32px 16px' }}>
+                            <td colSpan={6} className="empty-table-cell" style={{ textAlign: 'center', padding: '32px 16px' }}>
                               <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
                                 {tableSearch || globalSearch || statusFilter !== 'ALL'
                                   ? 'No Okta users matching the selected filters.'
@@ -647,41 +646,6 @@ export default function DashboardLayout({
                                 <td>
                                   <span className="date-text">{user.createdDate || 'Aug 14, 2026'}</span>
                                 </td>
-                                <td>
-                                  <div className="row-actions-cell">
-                                    <button
-                                      className="action-word-btn edit-btn"
-                                      onClick={() => onOpenUserDetail(user)}
-                                      title="View / Edit Profile"
-                                    >
-                                      Edit
-                                    </button>
-
-                                    <button
-                                      className={`action-word-btn ${isActive ? 'suspend-btn' : 'activate-btn'}`}
-                                      onClick={() => (isActive ? onSuspendUser(user) : onActivateUser(user))}
-                                      title={isActive ? 'Suspend User Access in Okta' : 'Activate User in Okta'}
-                                    >
-                                      {isActive ? 'Suspend' : 'Activate'}
-                                    </button>
-
-                                    <button
-                                      className="action-word-btn history-btn"
-                                      onClick={() => onViewAllAuditLogs(user.email)}
-                                      title="View User Lifecycle Logs"
-                                    >
-                                      Logs
-                                    </button>
-
-                                    <button
-                                      className="action-word-btn delete-btn"
-                                      onClick={() => onDeactivateUser(user)}
-                                      title="Deactivate / Deprovision User in Okta"
-                                    >
-                                      Deactivate
-                                    </button>
-                                  </div>
-                                </td>
                               </tr>
                             );
                           })
@@ -689,6 +653,7 @@ export default function DashboardLayout({
                       </tbody>
                     </table>
                   </div>
+
 
                   {/* Table Pagination Footer */}
                   <div className="table-pagination-footer">
