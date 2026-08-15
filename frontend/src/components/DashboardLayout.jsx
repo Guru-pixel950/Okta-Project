@@ -985,14 +985,6 @@ export default function DashboardLayout({
                                   </button>
 
                                   <button
-                                    className="action-word-btn history-btn"
-                                    onClick={() => onViewAllAuditLogs(user.email)}
-                                    title="View Audit Logs for this User"
-                                  >
-                                    Logs
-                                  </button>
-
-                                  <button
                                     className="action-word-btn delete-btn"
                                     onClick={() => onDeactivateUser(user)}
                                     title="Deactivate / Deprovision in Okta"
