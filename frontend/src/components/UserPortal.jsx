@@ -10,7 +10,6 @@ import {
 
 export default function UserPortal({
   currentUser,
-  onGoHome,
   onLogout,
   oktaApi,
   showToast,
@@ -60,7 +59,7 @@ export default function UserPortal({
         <div className="portal-brand">
           <div className="okta-sunburst-logo">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="3.5" strokeDasharray="3 3" />
+              <circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="3.5" strokeDasharray="3.5 3" />
               <circle cx="12" cy="12" r="4.5" fill="#2563eb" />
             </svg>
           </div>
@@ -76,18 +75,17 @@ export default function UserPortal({
             <span>Active Okta Session</span>
           </div>
 
-          <button className="btn btn-secondary btn-sm" onClick={onGoHome} id="user-back-landing-btn" title="Return to Landing Page (keeps session active)">
+          <button className="btn btn-secondary btn-sm" onClick={onLogout} id="user-back-landing-btn">
             <ArrowLeft size={15} />
-            <span>Landing Page</span>
+            <span>Back to Home</span>
           </button>
 
-          <button className="btn btn-outline btn-sm" onClick={onLogout} id="user-logout-btn" title="Sign Out">
+          <button className="btn btn-outline btn-sm" onClick={onLogout} id="user-logout-btn">
             <LogOut size={15} />
             <span>Sign Out</span>
           </button>
         </div>
       </header>
-
 
 
       {/* Main Content Area */}

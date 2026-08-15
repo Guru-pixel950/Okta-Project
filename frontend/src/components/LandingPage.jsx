@@ -4,36 +4,10 @@ import {
   Lock,
   ArrowRight,
   Sparkles,
-  UserCheck,
-  LogOut,
-  LayoutDashboard,
-  User as UserIcon
+  UserCheck
 } from 'lucide-react';
 
-export default function LandingPage({
-  currentUser,
-  currentRole,
-  onNavigateDashboard,
-  onLogout,
-  onOpenAuth,
-}) {
-  const handleAdminCardClick = () => {
-    const isSuper = localStorage.getItem('okta_is_super_admin') === 'true';
-    if (currentUser && isSuper && currentRole === 'Administrator') {
-      onNavigateDashboard('Administrator');
-    } else {
-      onOpenAuth('LOGIN', 'Administrator');
-    }
-  };
-
-  const handleUserCardClick = () => {
-    if (currentUser && currentRole === 'User') {
-      onNavigateDashboard('User');
-    } else {
-      onOpenAuth('LOGIN', 'User');
-    }
-  };
-
+export default function LandingPage({ onOpenAuth }) {
   return (
     <div className="landing-page">
       {/* Top Navigation */}
@@ -53,52 +27,26 @@ export default function LandingPage({
             </div>
           </div>
 
-          {/* Active Session vs Guest Auth Buttons */}
-          {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <button
-                className="btn btn-primary"
-                onClick={() => onNavigateDashboard(currentRole)}
-                id="landing-return-dashboard-btn"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-              >
-                {currentRole === 'Administrator' ? <LayoutDashboard size={16} /> : <UserIcon size={16} />}
-                <span>Return to {currentRole === 'Administrator' ? 'Admin Dashboard' : 'User Portal'}</span>
-                <ArrowRight size={16} />
-              </button>
+          <div className="landing-auth-buttons">
+            <button
+              className="btn btn-outline"
+              onClick={() => onOpenAuth('LOGIN', 'Administrator')}
+              id="landing-login-btn"
+            >
+              <Lock size={16} />
+              <span>Log In</span>
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => onOpenAuth('SIGNUP', 'User')}
+              id="landing-signup-btn"
+            >
+              <Sparkles size={16} />
+              <span>Sign Up</span>
+              <ArrowRight size={16} />
+            </button>
 
-              <button
-                className="btn btn-outline"
-                onClick={onLogout}
-                title="Sign Out of Session"
-                id="landing-header-logout-btn"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              >
-                <LogOut size={15} />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          ) : (
-            <div className="landing-auth-buttons">
-              <button
-                className="btn btn-outline"
-                onClick={() => onOpenAuth('LOGIN', 'Administrator')}
-                id="landing-login-btn"
-              >
-                <Lock size={16} />
-                <span>Log In</span>
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={() => onOpenAuth('SIGNUP', 'User')}
-                id="landing-signup-btn"
-              >
-                <Sparkles size={16} />
-                <span>Sign Up</span>
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          )}
+          </div>
         </div>
       </header>
 
@@ -117,8 +65,7 @@ export default function LandingPage({
           <div className="role-quick-cards" id="roles">
             <div
               className="role-card admin-role-card"
-              onClick={handleAdminCardClick}
-              style={{ cursor: 'pointer' }}
+              onClick={() => onOpenAuth('LOGIN', 'Administrator')}
             >
               <div className="role-card-header">
                 <div className="role-icon-badge admin-badge">
@@ -131,17 +78,14 @@ export default function LandingPage({
                 Full administrative dashboard matching Okta orchestrator specs. Provision users, manage lifecycle stages, trigger bulk actions, and view real-time audit logs.
               </p>
               <div className="role-card-footer">
-                <span>
-                  {currentUser && currentRole === 'Administrator' ? 'Open Active Admin Dashboard' : 'Sign In as Administrator'}
-                </span>
+                <span>Sign In as Administrator</span>
                 <ArrowRight size={16} />
               </div>
             </div>
 
             <div
               className="role-card user-role-card"
-              onClick={handleUserCardClick}
-              style={{ cursor: 'pointer' }}
+              onClick={() => onOpenAuth('LOGIN', 'User')}
             >
               <div className="role-card-header">
                 <div className="role-icon-badge user-badge">
@@ -154,9 +98,7 @@ export default function LandingPage({
                 Member self-service workspace. View your Okta directory profile, review account security status, inspect recent access logs, and update credentials.
               </p>
               <div className="role-card-footer">
-                <span>
-                  {currentUser && currentRole === 'User' ? 'Open Active User Portal' : 'Sign In as User'}
-                </span>
+                <span>Sign In as User</span>
                 <ArrowRight size={16} />
               </div>
             </div>

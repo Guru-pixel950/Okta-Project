@@ -42,7 +42,6 @@ export default function DashboardLayout({
   onUnsuspendUser,
   onExportCsv,
   onViewAllAuditLogs,
-  onGoHome,
   onLogout,
   onRefresh,
 }) {
@@ -376,28 +375,28 @@ export default function DashboardLayout({
           </div>
 
           <div className="topbar-right">
-            {/* Return to Landing Page */}
-            {onGoHome && (
-              <button
-                className="btn btn-outline"
-                onClick={onGoHome}
-                title="Return to Landing Page (keeps active session)"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  height: '36px',
-                  padding: '0 12px',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  borderRadius: '8px'
-                }}
-                id="btn-admin-landing-page"
-              >
-                <ArrowLeft size={14} />
-                <span>Landing Page</span>
-              </button>
-            )}
+            {/* Back to Home / Landing Page */}
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={onLogout}
+              title="Back to Landing Page"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                color: '#475569',
+                borderColor: '#cbd5e1',
+                borderRadius: '8px',
+                background: '#ffffff'
+              }}
+              id="admin-back-home-btn"
+            >
+              <ArrowLeft size={14} />
+              <span>Back to Home</span>
+            </button>
 
             {/* Sync / Refresh */}
             <button
@@ -408,6 +407,7 @@ export default function DashboardLayout({
             >
               <RefreshCw size={18} />
             </button>
+
 
             {/* Notification Bell */}
             <div className="notif-wrapper" ref={notifRef}>
@@ -490,16 +490,6 @@ export default function DashboardLayout({
                   >
                     <FileText size={16} />
                     <span>Audit Logs</span>
-                  </button>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      if (onGoHome) onGoHome();
-                    }}
-                  >
-                    <ArrowLeft size={16} />
-                    <span>Return to Landing Page</span>
                   </button>
                   <div className="profile-dropdown-divider" />
                   <button className="dropdown-item danger" onClick={onLogout} id="btn-menu-logout">

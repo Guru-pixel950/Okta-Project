@@ -167,27 +167,12 @@ export default function App() {
     localStorage.removeItem('okta_role');
     localStorage.removeItem('okta_is_super_admin');
     setCurrentUser(null);
-    setCurrentRole(null);
     setCurrentView('landing');
     addToast({
       type: 'info',
       title: 'Signed Out',
       message: 'You have been safely signed out of Okta.',
     });
-  };
-
-  const handleGoHome = () => {
-    setCurrentView('landing');
-  };
-
-  const handleNavigateActiveDashboard = (targetRole) => {
-    const role = targetRole || currentRole || 'Administrator';
-    const isSuper = localStorage.getItem('okta_is_super_admin') === 'true';
-    if (role === 'Administrator' && isSuper) {
-      setCurrentView('admin_dashboard');
-    } else {
-      setCurrentView('user_portal');
-    }
   };
 
   // Lifecycle Operations
@@ -342,13 +327,7 @@ export default function App() {
     <div className="app-root-container">
       {/* 1. Landing Page View */}
       {currentView === 'landing' && (
-        <LandingPage
-          currentUser={currentUser}
-          currentRole={currentRole}
-          onNavigateDashboard={handleNavigateActiveDashboard}
-          onLogout={handleLogout}
-          onOpenAuth={handleOpenAuth}
-        />
+        <LandingPage onOpenAuth={handleOpenAuth} />
       )}
 
       {/* 2. Admin Dashboard View (Strictly for Okta Super Administrators) */}
@@ -360,6 +339,7 @@ export default function App() {
           isLoadingUsers={isLoadingUsers}
           onOpenCreateUser={() => setIsCreateUserOpen(true)}
           onOpenUserDetail={(user, editMode = false) => setSelectedUserDetail({ ...user, editMode })}
+
           onActivateUser={handleActivateUser}
           onDeactivateUser={handleDeactivateUser}
           onSuspendUser={handleSuspendUser}
@@ -369,7 +349,6 @@ export default function App() {
             setAuditModalConfig({ isOpen: true, filterUser })
           }
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onGoHome={handleGoHome}
           onLogout={handleLogout}
           onRefresh={handleRefreshAll}
         />
@@ -379,7 +358,6 @@ export default function App() {
       {currentView === 'user_portal' && (
         <UserPortal
           currentUser={currentUser}
-          onGoHome={handleGoHome}
           onLogout={handleLogout}
           oktaApi={oktaApi}
           showToast={addToast}
