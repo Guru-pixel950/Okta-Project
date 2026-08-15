@@ -7,29 +7,28 @@ import {
   UserCheck,
   LogOut,
   LayoutDashboard,
-  User
+  User as UserIcon
 } from 'lucide-react';
 
 export default function LandingPage({
   currentUser,
   currentRole,
+  onNavigateDashboard,
+  onLogout,
   onOpenAuth,
-  onNavigateToDashboard,
-  onLogout
 }) {
-  const isSuperAdmin = localStorage.getItem('okta_is_super_admin') === 'true';
-
   const handleAdminCardClick = () => {
-    if (currentUser && isSuperAdmin) {
-      onNavigateToDashboard('admin_dashboard');
+    const isSuper = localStorage.getItem('okta_is_super_admin') === 'true';
+    if (currentUser && isSuper && currentRole === 'Administrator') {
+      onNavigateDashboard('Administrator');
     } else {
       onOpenAuth('LOGIN', 'Administrator');
     }
   };
 
   const handleUserCardClick = () => {
-    if (currentUser) {
-      onNavigateToDashboard('user_portal');
+    if (currentUser && currentRole === 'User') {
+      onNavigateDashboard('User');
     } else {
       onOpenAuth('LOGIN', 'User');
     }
@@ -54,62 +53,52 @@ export default function LandingPage({
             </div>
           </div>
 
-          <div className="landing-auth-buttons">
-            {currentUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
-                    {currentUser.firstName?.charAt(0) || 'U'}
-                  </div>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>
-                    {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName}` : currentUser.email}
-                  </span>
-                  <span style={{ fontSize: '0.72rem', padding: '2px 6px', borderRadius: '4px', background: isSuperAdmin ? '#ecfdf5' : '#eff6ff', color: isSuperAdmin ? '#059669' : '#2563eb', fontWeight: 700 }}>
-                    {isSuperAdmin ? 'Super Admin' : 'User'}
-                  </span>
-                </div>
+          {/* Active Session vs Guest Auth Buttons */}
+          {currentUser ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                className="btn btn-primary"
+                onClick={() => onNavigateDashboard(currentRole)}
+                id="landing-return-dashboard-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                {currentRole === 'Administrator' ? <LayoutDashboard size={16} /> : <UserIcon size={16} />}
+                <span>Return to {currentRole === 'Administrator' ? 'Admin Dashboard' : 'User Portal'}</span>
+                <ArrowRight size={16} />
+              </button>
 
-                <button
-                  className="btn btn-primary"
-                  onClick={() => onNavigateToDashboard(isSuperAdmin ? 'admin_dashboard' : 'user_portal')}
-                  id="landing-resume-session-btn"
-                >
-                  <LayoutDashboard size={16} />
-                  <span>Return to {isSuperAdmin ? 'Dashboard' : 'Portal'}</span>
-                </button>
-
-                <button
-                  className="btn btn-outline"
-                  onClick={onLogout}
-                  id="landing-logout-btn"
-                  title="Sign out of current session"
-                >
-                  <LogOut size={16} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <button
-                  className="btn btn-outline"
-                  onClick={() => onOpenAuth('LOGIN', 'Administrator')}
-                  id="landing-login-btn"
-                >
-                  <Lock size={16} />
-                  <span>Log In</span>
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => onOpenAuth('SIGNUP', 'User')}
-                  id="landing-signup-btn"
-                >
-                  <Sparkles size={16} />
-                  <span>Sign Up</span>
-                  <ArrowRight size={16} />
-                </button>
-              </>
-            )}
-          </div>
+              <button
+                className="btn btn-outline"
+                onClick={onLogout}
+                title="Sign Out of Session"
+                id="landing-header-logout-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <LogOut size={15} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <div className="landing-auth-buttons">
+              <button
+                className="btn btn-outline"
+                onClick={() => onOpenAuth('LOGIN', 'Administrator')}
+                id="landing-login-btn"
+              >
+                <Lock size={16} />
+                <span>Log In</span>
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => onOpenAuth('SIGNUP', 'User')}
+                id="landing-signup-btn"
+              >
+                <Sparkles size={16} />
+                <span>Sign Up</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -143,7 +132,7 @@ export default function LandingPage({
               </p>
               <div className="role-card-footer">
                 <span>
-                  {currentUser && isSuperAdmin ? 'Open Administrator Dashboard' : 'Sign In as Administrator'}
+                  {currentUser && currentRole === 'Administrator' ? 'Open Active Admin Dashboard' : 'Sign In as Administrator'}
                 </span>
                 <ArrowRight size={16} />
               </div>
@@ -166,7 +155,7 @@ export default function LandingPage({
               </p>
               <div className="role-card-footer">
                 <span>
-                  {currentUser ? 'Open User Portal' : 'Sign In as User'}
+                  {currentUser && currentRole === 'User' ? 'Open Active User Portal' : 'Sign In as User'}
                 </span>
                 <ArrowRight size={16} />
               </div>

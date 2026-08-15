@@ -167,12 +167,27 @@ export default function App() {
     localStorage.removeItem('okta_role');
     localStorage.removeItem('okta_is_super_admin');
     setCurrentUser(null);
+    setCurrentRole(null);
     setCurrentView('landing');
     addToast({
       type: 'info',
       title: 'Signed Out',
       message: 'You have been safely signed out of Okta.',
     });
+  };
+
+  const handleGoHome = () => {
+    setCurrentView('landing');
+  };
+
+  const handleNavigateActiveDashboard = (targetRole) => {
+    const role = targetRole || currentRole || 'Administrator';
+    const isSuper = localStorage.getItem('okta_is_super_admin') === 'true';
+    if (role === 'Administrator' && isSuper) {
+      setCurrentView('admin_dashboard');
+    } else {
+      setCurrentView('user_portal');
+    }
   };
 
   // Lifecycle Operations
@@ -195,42 +210,32 @@ export default function App() {
     }
   };
 
-  const handleDeactivateUser = (user) => {
-    setConfirmModalConfig({
-      isOpen: true,
-      title: 'Deprovision Okta User',
-      message: `Are you sure you want to deprovision ${user.firstName || ''} ${user.lastName || ''} (${user.email})? This user will lose access to all Okta applications.`,
-      confirmText: 'Deprovision User',
-      isDangerous: true,
-      onConfirm: async () => {
-        setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
-        try {
-          await oktaApi.deactivateUser(user.id);
-          addToast({
-            type: 'success',
-            title: 'User Deprovisioned',
-            message: `${user.firstName || ''} ${user.lastName || ''} (${user.email}) has been deprovisioned in Okta.`,
-          });
-          fetchUsers(true);
-          fetchAuditLogs(true);
-        } catch (err) {
-          addToast({
-            type: 'error',
-            title: 'Deprovision Failed',
-            message: err.message,
-          });
-        }
-      },
-    });
+  const handleUnsuspendUser = async (user) => {
+    try {
+      await oktaApi.unsuspendUser(user.id);
+      addToast({
+        type: 'success',
+        title: 'User Unsuspended',
+        message: `Account access restored for ${user.firstName || ''} ${user.lastName || ''}.`,
+      });
+      fetchUsers(true);
+      fetchAuditLogs(true);
+    } catch (err) {
+      addToast({
+        type: 'error',
+        title: 'Unsuspension Failed',
+        message: err.message,
+      });
+    }
   };
 
   const handleSuspendUser = (user) => {
     setConfirmModalConfig({
       isOpen: true,
-      title: 'Suspend Okta User',
-      message: `Are you sure you want to suspend access for ${user.firstName || ''} ${user.lastName || ''} (${user.email})?`,
+      title: 'Suspend User Access',
+      message: `Are you sure you want to suspend Okta access for ${user.firstName || ''} ${user.lastName || ''} (${user.email})?`,
       confirmText: 'Suspend Access',
-      isDangerous: true,
+      isDangerous: false,
       onConfirm: async () => {
         setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
         try {
@@ -238,7 +243,7 @@ export default function App() {
           addToast({
             type: 'warning',
             title: 'User Suspended',
-            message: `Access for ${user.firstName || ''} ${user.lastName || ''} has been temporarily suspended in Okta.`,
+            message: `${user.firstName || ''} ${user.lastName || ''} has been suspended in Okta.`,
           });
           fetchUsers(true);
           fetchAuditLogs(true);
@@ -253,84 +258,76 @@ export default function App() {
     });
   };
 
-  const handleUnsuspendUser = async (user) => {
+  const handleDeactivateUser = (user) => {
+    setConfirmModalConfig({
+      isOpen: true,
+      title: 'Deactivate Okta User',
+      message: `Are you sure you want to deprovision ${user.firstName || ''} ${user.lastName || ''} (${user.email})? This action will revoke all access tokens.`,
+      confirmText: 'Deactivate Account',
+      isDangerous: true,
+      onConfirm: async () => {
+        setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          await oktaApi.deactivateUser(user.id);
+          addToast({
+            type: 'success',
+            title: 'User Deactivated',
+            message: `${user.firstName || ''} ${user.lastName || ''} is now deprovisioned.`,
+          });
+          fetchUsers(true);
+          fetchAuditLogs(true);
+        } catch (err) {
+          addToast({
+            type: 'error',
+            title: 'Deactivation Failed',
+            message: err.message,
+          });
+        }
+      },
+    });
+  };
+
+  const handleExportCsv = async () => {
     try {
-      await oktaApi.unsuspendUser(user.id);
+      addToast({
+        type: 'info',
+        title: 'Exporting Okta Directory',
+        message: 'Preparing user CSV download...',
+      });
+      await oktaApi.downloadExportCsv();
       addToast({
         type: 'success',
-        title: 'User Unsuspended',
-        message: `Access for ${user.firstName || ''} ${user.lastName || ''} has been restored.`,
+        title: 'Export Completed',
+        message: 'Okta directory users exported to CSV.',
       });
-      fetchUsers(true);
-      fetchAuditLogs(true);
     } catch (err) {
       addToast({
         type: 'error',
-        title: 'Unsuspend Failed',
+        title: 'Export Failed',
         message: err.message,
       });
     }
   };
 
-  const handleExportCsv = () => {
-    if (!users || users.length === 0) {
-      addToast({
-        type: 'warning',
-        title: 'No Data',
-        message: 'No user records available to export.',
-      });
-      return;
-    }
-
-    const headers = ['Okta ID', 'First Name', 'Last Name', 'Email', 'Status', 'Created Date'];
-    const rows = users.map((u) => [
-      u.id,
-      `"${u.firstName || ''}"`,
-      `"${u.lastName || ''}"`,
-      `"${u.email || ''}"`,
-      u.status || 'UNKNOWN',
-      u.createdDate || '',
-    ]);
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `okta_users_export_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    addToast({
-      type: 'success',
-      title: 'Export Complete',
-      message: `Exported ${users.length} user records to CSV successfully.`,
-    });
-  };
-
   const handleRefreshAll = async () => {
-    await Promise.all([fetchUsers(true), fetchAuditLogs(true)]);
+    await Promise.all([fetchUsers(false), fetchAuditLogs(false)]);
     addToast({
       type: 'info',
-      title: 'Synchronized',
-      message: 'Okta directory and audit logs synchronized with tenant.',
+      title: 'Okta Data Synchronized',
+      message: 'Latest directory users and audit logs loaded.',
     });
   };
 
-  const handleUpdateUserProfile = async (userId, payload) => {
+  const handleUpdateUser = async (userId, updateData) => {
     try {
-      const res = await oktaApi.updateUser(userId, payload);
+      await oktaApi.updateUser(userId, updateData);
       addToast({
         type: 'success',
         title: 'Profile Updated',
-        message: 'User name and profile updated successfully in Okta.',
+        message: 'Okta directory profile updated successfully.',
       });
       fetchUsers(true);
       fetchAuditLogs(true);
-      return res;
     } catch (err) {
       addToast({
         type: 'error',
@@ -348,15 +345,9 @@ export default function App() {
         <LandingPage
           currentUser={currentUser}
           currentRole={currentRole}
-          onOpenAuth={handleOpenAuth}
-          onNavigateToDashboard={(view) => {
-            setCurrentView(view);
-            if (view === 'admin_dashboard') {
-              fetchUsers(true);
-              fetchAuditLogs(true);
-            }
-          }}
+          onNavigateDashboard={handleNavigateActiveDashboard}
           onLogout={handleLogout}
+          onOpenAuth={handleOpenAuth}
         />
       )}
 
@@ -378,8 +369,8 @@ export default function App() {
             setAuditModalConfig({ isOpen: true, filterUser })
           }
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onGoHome={handleGoHome}
           onLogout={handleLogout}
-          onBackToLanding={handleBackToLanding}
           onRefresh={handleRefreshAll}
         />
       )}
@@ -388,8 +379,8 @@ export default function App() {
       {currentView === 'user_portal' && (
         <UserPortal
           currentUser={currentUser}
+          onGoHome={handleGoHome}
           onLogout={handleLogout}
-          onBackToLanding={handleBackToLanding}
           oktaApi={oktaApi}
           showToast={addToast}
         />
