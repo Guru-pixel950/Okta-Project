@@ -908,12 +908,79 @@ button, input, select, textarea {
   color: var(--text-body);
 }
 
-/* Action Icons Cell */
+/* Action Words and Buttons Cell */
 .row-actions-cell {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  flex-wrap: wrap;
+}
+
+.action-word-btn {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.action-word-btn.edit-btn {
+  color: #2563eb;
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+.action-word-btn.edit-btn:hover {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.action-word-btn.suspend-btn {
+  color: #d97706;
+  background-color: #fffbeb;
+  border-color: #fde68a;
+}
+.action-word-btn.suspend-btn:hover {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+}
+
+.action-word-btn.activate-btn {
+  color: #059669;
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.action-word-btn.activate-btn:hover {
+  background-color: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+.action-word-btn.history-btn {
+  color: #7c3aed;
+  background-color: #f5f3ff;
+  border-color: #ddd6fe;
+}
+.action-word-btn.history-btn:hover {
+  background-color: #ede9fe;
+  border-color: #c4b5fd;
+}
+
+.action-word-btn.delete-btn {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+.action-word-btn.delete-btn:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
 }
 
 .action-icon-btn {
@@ -956,6 +1023,7 @@ button, input, select, textarea {
 .action-icon-btn.delete-btn:hover {
   background-color: #fef2f2;
 }
+
 
 /* Table Pagination Footer */
 .table-pagination-footer {

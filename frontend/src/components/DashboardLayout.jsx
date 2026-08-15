@@ -650,35 +650,35 @@ export default function DashboardLayout({
                                 <td>
                                   <div className="row-actions-cell">
                                     <button
-                                      className="action-icon-btn edit-btn"
+                                      className="action-word-btn edit-btn"
                                       onClick={() => onOpenUserDetail(user)}
                                       title="View / Edit Profile"
                                     >
-                                      <Edit2 size={14} />
+                                      Edit
                                     </button>
 
                                     <button
-                                      className="action-icon-btn power-btn"
+                                      className={`action-word-btn ${isActive ? 'suspend-btn' : 'activate-btn'}`}
                                       onClick={() => (isActive ? onSuspendUser(user) : onActivateUser(user))}
                                       title={isActive ? 'Suspend User Access in Okta' : 'Activate User in Okta'}
                                     >
-                                      <Power size={14} />
+                                      {isActive ? 'Suspend' : 'Activate'}
                                     </button>
 
                                     <button
-                                      className="action-icon-btn history-btn"
+                                      className="action-word-btn history-btn"
                                       onClick={() => onViewAllAuditLogs(user.email)}
                                       title="View User Lifecycle Logs"
                                     >
-                                      <Clock size={14} />
+                                      Logs
                                     </button>
 
                                     <button
-                                      className="action-icon-btn delete-btn"
+                                      className="action-word-btn delete-btn"
                                       onClick={() => onDeactivateUser(user)}
                                       title="Deactivate / Deprovision User in Okta"
                                     >
-                                      <Trash2 size={14} />
+                                      Deactivate
                                     </button>
                                   </div>
                                 </td>
@@ -967,35 +967,35 @@ export default function DashboardLayout({
                               <td>
                                 <div className="row-actions-cell" style={{ justifyContent: 'center' }}>
                                   <button
-                                    className="action-icon-btn edit-btn"
+                                    className="action-word-btn edit-btn"
                                     onClick={() => onOpenUserDetail(user)}
                                     title="View & Edit Identity Details"
                                   >
-                                    <Edit2 size={14} />
+                                    Edit
                                   </button>
 
                                   <button
-                                    className="action-icon-btn power-btn"
+                                    className={`action-word-btn ${isActive ? 'suspend-btn' : 'activate-btn'}`}
                                     onClick={() => (isActive ? onSuspendUser(user) : onActivateUser(user))}
                                     title={isActive ? 'Suspend Access in Okta' : 'Activate / Restore in Okta'}
                                   >
-                                    <Power size={14} />
+                                    {isActive ? 'Suspend' : 'Activate'}
                                   </button>
 
                                   <button
-                                    className="action-icon-btn history-btn"
+                                    className="action-word-btn history-btn"
                                     onClick={() => onViewAllAuditLogs(user.email)}
                                     title="View Audit Logs for this User"
                                   >
-                                    <Clock size={14} />
+                                    Logs
                                   </button>
 
                                   <button
-                                    className="action-icon-btn delete-btn"
+                                    className="action-word-btn delete-btn"
                                     onClick={() => onDeactivateUser(user)}
                                     title="Deactivate / Deprovision in Okta"
                                   >
-                                    <Trash2 size={14} />
+                                    Deactivate
                                   </button>
                                 </div>
                               </td>
