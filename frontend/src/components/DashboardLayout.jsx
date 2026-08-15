@@ -44,6 +44,7 @@ export default function DashboardLayout({
   onViewAllAuditLogs,
   onLogout,
   onRefresh,
+  onBackToLanding,
 }) {
   // Sidebar Navigation State: 'dashboard' | 'user_management' | 'audit_logs'
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -375,6 +376,18 @@ export default function DashboardLayout({
           </div>
 
           <div className="topbar-right">
+            {/* Back to Landing Page (Keeps Session Active) */}
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={onBackToLanding}
+              title="Return to Landing Page without logging out"
+              style={{ height: '36px', padding: '0 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+              id="topbar-back-to-landing-btn"
+            >
+              <ArrowLeft size={14} />
+              <span>Back to Home</span>
+            </button>
+
             {/* Sync / Refresh */}
             <button
               className="topbar-icon-btn"
@@ -456,6 +469,16 @@ export default function DashboardLayout({
                     <p className="email-muted">{currentUser?.email || 'admin@okta-tenant.local'}</p>
                   </div>
                   <div className="profile-dropdown-divider" />
+                  <button
+                    className="dropdown-item"
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      onBackToLanding();
+                    }}
+                  >
+                    <ArrowLeft size={16} />
+                    <span>Back to Home</span>
+                  </button>
                   <button
                     className="dropdown-item"
                     onClick={() => {

@@ -195,32 +195,42 @@ export default function App() {
     }
   };
 
-  const handleUnsuspendUser = async (user) => {
-    try {
-      await oktaApi.unsuspendUser(user.id);
-      addToast({
-        type: 'success',
-        title: 'User Unsuspended',
-        message: `Account access restored for ${user.firstName || ''} ${user.lastName || ''}.`,
-      });
-      fetchUsers(true);
-      fetchAuditLogs(true);
-    } catch (err) {
-      addToast({
-        type: 'error',
-        title: 'Unsuspension Failed',
-        message: err.message,
-      });
-    }
+  const handleDeactivateUser = (user) => {
+    setConfirmModalConfig({
+      isOpen: true,
+      title: 'Deprovision Okta User',
+      message: `Are you sure you want to deprovision ${user.firstName || ''} ${user.lastName || ''} (${user.email})? This user will lose access to all Okta applications.`,
+      confirmText: 'Deprovision User',
+      isDangerous: true,
+      onConfirm: async () => {
+        setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          await oktaApi.deactivateUser(user.id);
+          addToast({
+            type: 'success',
+            title: 'User Deprovisioned',
+            message: `${user.firstName || ''} ${user.lastName || ''} (${user.email}) has been deprovisioned in Okta.`,
+          });
+          fetchUsers(true);
+          fetchAuditLogs(true);
+        } catch (err) {
+          addToast({
+            type: 'error',
+            title: 'Deprovision Failed',
+            message: err.message,
+          });
+        }
+      },
+    });
   };
 
   const handleSuspendUser = (user) => {
     setConfirmModalConfig({
       isOpen: true,
-      title: 'Suspend User Access',
-      message: `Are you sure you want to suspend Okta access for ${user.firstName || ''} ${user.lastName || ''} (${user.email})?`,
+      title: 'Suspend Okta User',
+      message: `Are you sure you want to suspend access for ${user.firstName || ''} ${user.lastName || ''} (${user.email})?`,
       confirmText: 'Suspend Access',
-      isDangerous: false,
+      isDangerous: true,
       onConfirm: async () => {
         setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
         try {
@@ -228,7 +238,7 @@ export default function App() {
           addToast({
             type: 'warning',
             title: 'User Suspended',
-            message: `${user.firstName || ''} ${user.lastName || ''} has been suspended in Okta.`,
+            message: `Access for ${user.firstName || ''} ${user.lastName || ''} has been temporarily suspended in Okta.`,
           });
           fetchUsers(true);
           fetchAuditLogs(true);
@@ -243,76 +253,84 @@ export default function App() {
     });
   };
 
-  const handleDeactivateUser = (user) => {
-    setConfirmModalConfig({
-      isOpen: true,
-      title: 'Deactivate Okta User',
-      message: `Are you sure you want to deprovision ${user.firstName || ''} ${user.lastName || ''} (${user.email})? This action will revoke all access tokens.`,
-      confirmText: 'Deactivate Account',
-      isDangerous: true,
-      onConfirm: async () => {
-        setConfirmModalConfig((prev) => ({ ...prev, isOpen: false }));
-        try {
-          await oktaApi.deactivateUser(user.id);
-          addToast({
-            type: 'success',
-            title: 'User Deactivated',
-            message: `${user.firstName || ''} ${user.lastName || ''} is now deprovisioned.`,
-          });
-          fetchUsers(true);
-          fetchAuditLogs(true);
-        } catch (err) {
-          addToast({
-            type: 'error',
-            title: 'Deactivation Failed',
-            message: err.message,
-          });
-        }
-      },
-    });
-  };
-
-  const handleExportCsv = async () => {
+  const handleUnsuspendUser = async (user) => {
     try {
-      addToast({
-        type: 'info',
-        title: 'Exporting Okta Directory',
-        message: 'Preparing user CSV download...',
-      });
-      await oktaApi.downloadExportCsv();
+      await oktaApi.unsuspendUser(user.id);
       addToast({
         type: 'success',
-        title: 'Export Completed',
-        message: 'Okta directory users exported to CSV.',
+        title: 'User Unsuspended',
+        message: `Access for ${user.firstName || ''} ${user.lastName || ''} has been restored.`,
       });
+      fetchUsers(true);
+      fetchAuditLogs(true);
     } catch (err) {
       addToast({
         type: 'error',
-        title: 'Export Failed',
+        title: 'Unsuspend Failed',
         message: err.message,
       });
     }
   };
 
-  const handleRefreshAll = async () => {
-    await Promise.all([fetchUsers(false), fetchAuditLogs(false)]);
+  const handleExportCsv = () => {
+    if (!users || users.length === 0) {
+      addToast({
+        type: 'warning',
+        title: 'No Data',
+        message: 'No user records available to export.',
+      });
+      return;
+    }
+
+    const headers = ['Okta ID', 'First Name', 'Last Name', 'Email', 'Status', 'Created Date'];
+    const rows = users.map((u) => [
+      u.id,
+      `"${u.firstName || ''}"`,
+      `"${u.lastName || ''}"`,
+      `"${u.email || ''}"`,
+      u.status || 'UNKNOWN',
+      u.createdDate || '',
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `okta_users_export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     addToast({
-      type: 'info',
-      title: 'Okta Data Synchronized',
-      message: 'Latest directory users and audit logs loaded.',
+      type: 'success',
+      title: 'Export Complete',
+      message: `Exported ${users.length} user records to CSV successfully.`,
     });
   };
 
-  const handleUpdateUser = async (userId, updateData) => {
+  const handleRefreshAll = async () => {
+    await Promise.all([fetchUsers(true), fetchAuditLogs(true)]);
+    addToast({
+      type: 'info',
+      title: 'Synchronized',
+      message: 'Okta directory and audit logs synchronized with tenant.',
+    });
+  };
+
+  const handleUpdateUserProfile = async (userId, payload) => {
     try {
-      await oktaApi.updateUser(userId, updateData);
+      const res = await oktaApi.updateUser(userId, payload);
       addToast({
         type: 'success',
         title: 'Profile Updated',
-        message: 'Okta directory profile updated successfully.',
+        message: 'User name and profile updated successfully in Okta.',
       });
       fetchUsers(true);
       fetchAuditLogs(true);
+      return res;
     } catch (err) {
       addToast({
         type: 'error',
@@ -327,7 +345,19 @@ export default function App() {
     <div className="app-root-container">
       {/* 1. Landing Page View */}
       {currentView === 'landing' && (
-        <LandingPage onOpenAuth={handleOpenAuth} />
+        <LandingPage
+          currentUser={currentUser}
+          currentRole={currentRole}
+          onOpenAuth={handleOpenAuth}
+          onNavigateToDashboard={(view) => {
+            setCurrentView(view);
+            if (view === 'admin_dashboard') {
+              fetchUsers(true);
+              fetchAuditLogs(true);
+            }
+          }}
+          onLogout={handleLogout}
+        />
       )}
 
       {/* 2. Admin Dashboard View (Strictly for Okta Super Administrators) */}
@@ -339,7 +369,6 @@ export default function App() {
           isLoadingUsers={isLoadingUsers}
           onOpenCreateUser={() => setIsCreateUserOpen(true)}
           onOpenUserDetail={(user, editMode = false) => setSelectedUserDetail({ ...user, editMode })}
-
           onActivateUser={handleActivateUser}
           onDeactivateUser={handleDeactivateUser}
           onSuspendUser={handleSuspendUser}
@@ -350,6 +379,7 @@ export default function App() {
           }
           onOpenSettings={() => setIsSettingsOpen(true)}
           onLogout={handleLogout}
+          onBackToLanding={handleBackToLanding}
           onRefresh={handleRefreshAll}
         />
       )}
@@ -359,6 +389,7 @@ export default function App() {
         <UserPortal
           currentUser={currentUser}
           onLogout={handleLogout}
+          onBackToLanding={handleBackToLanding}
           oktaApi={oktaApi}
           showToast={addToast}
         />

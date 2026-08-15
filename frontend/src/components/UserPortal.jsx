@@ -11,6 +11,7 @@ import {
 export default function UserPortal({
   currentUser,
   onLogout,
+  onBackToLanding,
   oktaApi,
   showToast,
 }) {
@@ -75,7 +76,7 @@ export default function UserPortal({
             <span>Active Okta Session</span>
           </div>
 
-          <button className="btn btn-secondary btn-sm" onClick={onLogout} id="user-back-landing-btn">
+          <button className="btn btn-secondary btn-sm" onClick={onBackToLanding || onLogout} id="user-back-landing-btn" title="Return to Home Page without logging out">
             <ArrowLeft size={15} />
             <span>Back to Home</span>
           </button>

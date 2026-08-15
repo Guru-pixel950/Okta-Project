@@ -4,10 +4,37 @@ import {
   Lock,
   ArrowRight,
   Sparkles,
-  UserCheck
+  UserCheck,
+  LogOut,
+  LayoutDashboard,
+  User
 } from 'lucide-react';
 
-export default function LandingPage({ onOpenAuth }) {
+export default function LandingPage({
+  currentUser,
+  currentRole,
+  onOpenAuth,
+  onNavigateToDashboard,
+  onLogout
+}) {
+  const isSuperAdmin = localStorage.getItem('okta_is_super_admin') === 'true';
+
+  const handleAdminCardClick = () => {
+    if (currentUser && isSuperAdmin) {
+      onNavigateToDashboard('admin_dashboard');
+    } else {
+      onOpenAuth('LOGIN', 'Administrator');
+    }
+  };
+
+  const handleUserCardClick = () => {
+    if (currentUser) {
+      onNavigateToDashboard('user_portal');
+    } else {
+      onOpenAuth('LOGIN', 'User');
+    }
+  };
+
   return (
     <div className="landing-page">
       {/* Top Navigation */}
@@ -28,24 +55,60 @@ export default function LandingPage({ onOpenAuth }) {
           </div>
 
           <div className="landing-auth-buttons">
-            <button
-              className="btn btn-outline"
-              onClick={() => onOpenAuth('LOGIN', 'Administrator')}
-              id="landing-login-btn"
-            >
-              <Lock size={16} />
-              <span>Log In</span>
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => onOpenAuth('SIGNUP', 'User')}
-              id="landing-signup-btn"
-            >
-              <Sparkles size={16} />
-              <span>Sign Up</span>
-              <ArrowRight size={16} />
-            </button>
+            {currentUser ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {currentUser.firstName?.charAt(0) || 'U'}
+                  </div>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>
+                    {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName}` : currentUser.email}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', padding: '2px 6px', borderRadius: '4px', background: isSuperAdmin ? '#ecfdf5' : '#eff6ff', color: isSuperAdmin ? '#059669' : '#2563eb', fontWeight: 700 }}>
+                    {isSuperAdmin ? 'Super Admin' : 'User'}
+                  </span>
+                </div>
 
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onNavigateToDashboard(isSuperAdmin ? 'admin_dashboard' : 'user_portal')}
+                  id="landing-resume-session-btn"
+                >
+                  <LayoutDashboard size={16} />
+                  <span>Return to {isSuperAdmin ? 'Dashboard' : 'Portal'}</span>
+                </button>
+
+                <button
+                  className="btn btn-outline"
+                  onClick={onLogout}
+                  id="landing-logout-btn"
+                  title="Sign out of current session"
+                >
+                  <LogOut size={16} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => onOpenAuth('LOGIN', 'Administrator')}
+                  id="landing-login-btn"
+                >
+                  <Lock size={16} />
+                  <span>Log In</span>
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onOpenAuth('SIGNUP', 'User')}
+                  id="landing-signup-btn"
+                >
+                  <Sparkles size={16} />
+                  <span>Sign Up</span>
+                  <ArrowRight size={16} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -65,7 +128,8 @@ export default function LandingPage({ onOpenAuth }) {
           <div className="role-quick-cards" id="roles">
             <div
               className="role-card admin-role-card"
-              onClick={() => onOpenAuth('LOGIN', 'Administrator')}
+              onClick={handleAdminCardClick}
+              style={{ cursor: 'pointer' }}
             >
               <div className="role-card-header">
                 <div className="role-icon-badge admin-badge">
@@ -78,14 +142,17 @@ export default function LandingPage({ onOpenAuth }) {
                 Full administrative dashboard matching Okta orchestrator specs. Provision users, manage lifecycle stages, trigger bulk actions, and view real-time audit logs.
               </p>
               <div className="role-card-footer">
-                <span>Sign In as Administrator</span>
+                <span>
+                  {currentUser && isSuperAdmin ? 'Open Administrator Dashboard' : 'Sign In as Administrator'}
+                </span>
                 <ArrowRight size={16} />
               </div>
             </div>
 
             <div
               className="role-card user-role-card"
-              onClick={() => onOpenAuth('LOGIN', 'User')}
+              onClick={handleUserCardClick}
+              style={{ cursor: 'pointer' }}
             >
               <div className="role-card-header">
                 <div className="role-icon-badge user-badge">
@@ -98,7 +165,9 @@ export default function LandingPage({ onOpenAuth }) {
                 Member self-service workspace. View your Okta directory profile, review account security status, inspect recent access logs, and update credentials.
               </p>
               <div className="role-card-footer">
-                <span>Sign In as User</span>
+                <span>
+                  {currentUser ? 'Open User Portal' : 'Sign In as User'}
+                </span>
                 <ArrowRight size={16} />
               </div>
             </div>
