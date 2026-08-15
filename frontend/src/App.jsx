@@ -338,7 +338,8 @@ export default function App() {
           auditLogs={auditLogs}
           isLoadingUsers={isLoadingUsers}
           onOpenCreateUser={() => setIsCreateUserOpen(true)}
-          onOpenUserDetail={(user) => setSelectedUserDetail(user)}
+          onOpenUserDetail={(user, editMode = false) => setSelectedUserDetail({ ...user, editMode })}
+
           onActivateUser={handleActivateUser}
           onDeactivateUser={handleDeactivateUser}
           onSuspendUser={handleSuspendUser}

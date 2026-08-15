@@ -4,7 +4,8 @@ import {
   LogOut,
   Edit3,
   Save,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function UserPortal({
@@ -74,12 +75,18 @@ export default function UserPortal({
             <span>Active Okta Session</span>
           </div>
 
-          <button className="btn btn-secondary btn-sm" onClick={onLogout} id="user-logout-btn">
+          <button className="btn btn-secondary btn-sm" onClick={onLogout} id="user-back-landing-btn">
+            <ArrowLeft size={15} />
+            <span>Back to Home</span>
+          </button>
+
+          <button className="btn btn-outline btn-sm" onClick={onLogout} id="user-logout-btn">
             <LogOut size={15} />
             <span>Sign Out</span>
           </button>
         </div>
       </header>
+
 
       {/* Main Content Area */}
       <main className="user-portal-content">

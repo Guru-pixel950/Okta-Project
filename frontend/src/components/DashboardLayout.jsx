@@ -25,7 +25,8 @@ import {
   Play,
   Pause,
   AlertCircle,
-  Filter
+  Filter,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -766,7 +767,19 @@ export default function DashboardLayout({
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setActiveNav('dashboard');
+                        setCurrentPage(1);
+                      }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ArrowLeft size={15} />
+                      <span>Back to Dashboard</span>
+                    </button>
+
                     <button
                       className="btn btn-outline"
                       onClick={onRefresh}
@@ -933,7 +946,7 @@ export default function DashboardLayout({
                                 <div className="row-actions-cell" style={{ justifyContent: 'center' }}>
                                   <button
                                     className="action-word-btn edit-btn"
-                                    onClick={() => onOpenUserDetail(user)}
+                                    onClick={() => onOpenUserDetail(user, true)}
                                     title="View & Edit Identity Details"
                                   >
                                     Edit
@@ -1047,7 +1060,19 @@ export default function DashboardLayout({
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setActiveNav('dashboard');
+                        setCurrentPage(1);
+                      }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ArrowLeft size={15} />
+                      <span>Back to Dashboard</span>
+                    </button>
+
                     <button
                       className="btn btn-outline"
                       onClick={onRefresh}
